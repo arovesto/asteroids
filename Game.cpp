@@ -6,10 +6,13 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <string>
 
 #include "Engine.h"
 #include "GameObjects.h"
 #include "Game.h"
+
+#include <SFML/Audio.hpp>
 
 
 //
@@ -57,8 +60,48 @@ void generate_asteroids() {
     }
 };
 
+
+std::vector<sf::SoundBuffer> buffs;
+std::vector<sf::Sound> s(200);
+
+
+size_t load_sound(std::string sound_name) {
+    sf::SoundBuffer b;
+    b.loadFromFile(sound_name);
+    buffs.push_back(b);
+    return buffs.size() - 1;
+};
+
+sf::Sound* play_sound(size_t snd_id, bool loop=false) {
+    for (size_t i = 0; i < s.size(); i++) {
+        if (s[i].getStatus() != s[i].Playing) {
+            s[i].setLoop(loop);
+            s[i].setBuffer(buffs[snd_id]);
+            s[i].setVolume(1);
+            s[i].play();
+            return &s[i];
+        }
+    }
+    return &s[0];
+}
+
+// TODO (arovesto): Refactor current sound system
+// load_sound seams ok
+// play_sound should not return sf:Sound type but some our type with cancel function
+// play_sound should be visible for all members
+// method stop all sound required
+
+size_t shoot_sound = 0; 
+size_t explosion_sound = 0;
+size_t ufo_sound = 0;
+
 // initialize game data in this function
 void initialize() {
+    shoot_sound = load_sound("/home/arovesto/cpp/asteroids/assets/shoot.wav");
+    explosion_sound = load_sound("/home/arovesto/cpp/asteroids/assets/explosion.wav");
+    ufo_sound = load_sound("/home/arovesto/cpp/asteroids/assets/ufo.wav");
+
+
     srand(time(NULL));
     generate_asteroids();
 }
@@ -100,6 +143,7 @@ void loose_life() {
     if (life_lost_now) {
         return;
     }
+    play_sound(explosion_sound);
     life_lost_now = true;
     animations.push_back(Animation(p.position(), 50, 2, player, p.get_angle()));
     if (lifes <= 1) {
@@ -113,7 +157,11 @@ void loose_life() {
     game_state = life_lost;
 }
 
+sf::Sound* ufo_loop = nullptr;
+
 void ufo_dead() {
+    ufo_loop->stop();
+    play_sound(explosion_sound);
     animations.push_back(Animation(u.position(), 50, 3, ufo, 0, u.get_factor()));
     u.deactivate();
     ufo_cooldown = 0;
@@ -121,6 +169,7 @@ void ufo_dead() {
 }
 
 void asteroid_dead(size_t j) {
+    play_sound(explosion_sound);
     animations.push_back(Animation(asteroids[j].position(), 100, 0.5, 20));
     asteroids_to_delete.push_back(j);
     if (asteroids[j].asteroid_size() >= 6) {
@@ -160,6 +209,7 @@ void act(float dt) {
             level = 1;
             score = 0;
             lifes = 3;
+            if (ufo_loop != nullptr) ufo_loop->stop();
             u.deactivate();
             generate_asteroids();
         }
@@ -175,6 +225,7 @@ void act(float dt) {
         if (asteroids.size() < 5 && ufo_cooldown > 5 && !u.is_active()) {
             ufo_cooldown = 0;
             cooldown = 0;
+            ufo_loop = play_sound(ufo_sound, true);
             u.activate(level);
         }
 
@@ -358,6 +409,8 @@ void draw()
 void finalize() {}
 
 void shoot(const Vec& from, const float angle, bool is_player_bullet = true) {
+    play_sound(shoot_sound);
+    
     Bullet b = Bullet(Vec{700, 0}.rotate(angle), from, is_player_bullet);
     bullets.push_back(b); 
 }

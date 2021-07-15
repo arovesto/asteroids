@@ -5,7 +5,7 @@
 #include "Game.h"
 
 
-float player_shoot_cooldown = 0.2;
+float player_shoot_cooldown = 0.15;
 
 Figure player = Figure({Vec{-10, 15}, Vec{0, -15}, Vec{10, 15}, Vec{8, 10}, Vec{-8, 10}, Vec{-10, 15}});
 Figure plum = Figure({Vec{-4, 10}, Vec{0, 15}, Vec{4, 10}});
@@ -37,10 +37,10 @@ void Player::draw() {
 
 void Player::act(float dt) {
     if (is_key_pressed(VK_RIGHT)) {
-        angle += 5 * dt;
+        angle += 3 * dt;
     }
     if (is_key_pressed(VK_LEFT)) {
-        angle -= 5 * dt;   
+        angle -= 3 * dt;   
     }
 
     if (is_key_pressed(VK_SPACE)) {
@@ -180,7 +180,7 @@ void UFO::act(float dt) {
     if (p.abs_square() < 400*400) {
         if (shoot_cooldown > 2) {
             shoot_cooldown = 0;
-            shoot(pos, p.angle() + random_vec(1).x / (1 + lvl / 2), false);
+            shoot(pos, p.angle() + random_vec(2).x / (1 + lvl / 2), false);
         }
         vel = Vec{0, 0};
     } else {
