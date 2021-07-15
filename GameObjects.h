@@ -180,7 +180,7 @@ void UFO::act(float dt) {
     if (p.abs_square() < 400*400) {
         if (shoot_cooldown > 2) {
             shoot_cooldown = 0;
-            shoot(pos, p.angle() + random_vec(2).x / (1 + lvl / 2), false);
+            shoot(pos, p.angle() + random_vec(4).x / (1 + lvl / 2), false);
         }
         vel = Vec{0, 0};
     } else {

@@ -97,9 +97,9 @@ size_t ufo_sound = 0;
 
 // initialize game data in this function
 void initialize() {
-    shoot_sound = load_sound("/home/arovesto/cpp/asteroids/assets/shoot.wav");
-    explosion_sound = load_sound("/home/arovesto/cpp/asteroids/assets/explosion.wav");
-    ufo_sound = load_sound("/home/arovesto/cpp/asteroids/assets/ufo.wav");
+    shoot_sound = load_sound("assets/shoot.wav");
+    explosion_sound = load_sound("assets/explosion.wav");
+    ufo_sound = load_sound("assets/ufo.wav");
 
 
     srand(time(NULL));
